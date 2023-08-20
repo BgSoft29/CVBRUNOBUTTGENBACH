@@ -1,0 +1,88 @@
+(function($, undefined){
+    var path = '';
+    var current = 1;
+    var MIN_SIDE = 3;
+    var MIN_CENTER = 3;
+
+    $(function(){
+        var $paginator = $('.pagination-nav');
+        if(!$paginator.length) return;
+        prepare_path();
+        var pages = parseInt($paginator.data('pages'));
+        var $ul = $('<ul/>').appendTo($paginator);
+        $ul.addClass('pagination');
+        if(current==1) {
+            $ul.append(page_item(current - 1, '<').addClass("arrow").addClass("disabled"));
+        }else{
+            $ul.append(page_item(current - 1, '<').addClass("arrow"));
+        }
+        if(pages<MIN_SIDE * 2 + MIN_CENTER + 2) {
+            for(var i=1, html=''; i<=pages; i++) {
+                $ul.append(page_item(i, i));
+            }
+        } else if(current<MIN_SIDE + 1) {
+            for(var i=1, html=''; i<=MIN_SIDE + 1; i++) {
+                $ul.append(page_item(i, i));
+            }
+            $ul.append($('<li><span>...</span></li>'));
+            for(var i=pages - MIN_SIDE - MIN_CENTER, html=''; i<=pages; i++) {
+                $ul.append(page_item(i, i));
+            }
+        } else if(current>pages - MIN_SIDE) {
+            for(var i=1, html=''; i<=MIN_SIDE + MIN_CENTER; i++) {
+                $ul.append(page_item(i, i));
+            }
+            $ul.append($('<li><span>...</span></li>'));
+            for(var i=pages - MIN_CENTER, html=''; i<=pages; i++) {
+                $ul.append(page_item(i, i));
+            }
+        } else {
+            for(var i=1, html=''; i<=MIN_SIDE; i++) {
+                $ul.append(page_item(i, i));
+            }
+            $ul.append($('<li><span>...</span></li>'));
+            for(var i=current - Math.round(MIN_CENTER / 2), html=''; i<=current + Math.round(MIN_CENTER / 2); i++) {
+                $ul.append(page_item(i, i));
+            }
+            $ul.append($('<li><span>...</span></li>'));
+            for(var i=pages - MIN_SIDE + 1, html=''; i<=pages; i++) {
+                $ul.append(page_item(i, i));
+            }
+        }
+        if(current<pages) {
+            $ul.append(page_item(current + 1, '>').addClass("arrow"));
+        }else {
+            $ul.append(page_item(current - 1, '>').addClass("arrow").addClass("disabled"));
+        }
+    });
+
+    function prepare_path() {
+        path = window.location.pathname;
+        var attrs = window.location.search;
+        if(attrs.length){
+            attrs = attrs.slice(1).split('&');
+            for(var attr='', i=0; i<attrs.length; i++) {
+                attr = attrs[i].split('=');
+                if(attr[0]=='page') {
+                    current = parseInt(attr[1]);
+                    attrs.splice(i, 1);
+                    break;
+                }
+            }
+        }
+        path += '?';
+        if(attrs.length) {
+            path += attrs.join('&') + '&';
+        }
+    }
+
+    function page_item(n, title) {
+        var html = '<li>';
+        if(n==current){
+            html = '<li class="disabled">'
+        }
+        html += '<a href="' + path + 'page=' + n + '">' + title + '</a></li>';
+        return $(html)
+    }
+
+})(jQuery)
